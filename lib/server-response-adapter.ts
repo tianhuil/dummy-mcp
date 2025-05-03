@@ -1,6 +1,6 @@
-import { EventEmitter } from "node:events";
+import { EventEmitter } from 'node:events';
 
-import { type ServerResponse } from "node:http";
+import type { ServerResponse } from 'node:http';
 
 type WriteheadArgs = {
   statusCode: number;
@@ -13,13 +13,13 @@ type WriteheadArgs = {
  */
 export function createServerResponseAdapter(
   signal: AbortSignal,
-  fn: (re: ServerResponse) => Promise<void> | void
+  fn: (re: ServerResponse) => Promise<void> | void,
 ): Promise<Response> {
   let writeHeadResolver: (v: WriteheadArgs) => void;
   const writeHeadPromise = new Promise<WriteheadArgs>(
     async (resolve, reject) => {
       writeHeadResolver = resolve;
-    }
+    },
   );
 
   return new Promise(async (resolve, reject) => {
@@ -29,10 +29,10 @@ export function createServerResponseAdapter(
 
     const writeHead = (
       statusCode: number,
-      headers?: Record<string, string>
+      headers?: Record<string, string>,
     ) => {
-      if (typeof headers === "string") {
-        throw new Error("Status message of writeHead not supported");
+      if (typeof headers === 'string') {
+        throw new Error('Status message of writeHead not supported');
       }
       wroteHead = true;
       writeHeadResolver({
@@ -42,17 +42,17 @@ export function createServerResponseAdapter(
       return fakeServerResponse;
     };
 
-    let bufferedData: Uint8Array[] = [];
+    const bufferedData: Uint8Array[] = [];
 
     const write = (
       chunk: Buffer | string,
-      encoding?: BufferEncoding
+      encoding?: BufferEncoding,
     ): boolean => {
       if (encoding) {
-        throw new Error("Encoding not supported");
+        throw new Error('Encoding not supported');
       }
       if (chunk instanceof Buffer) {
-        throw new Error("Buffer not supported");
+        throw new Error('Buffer not supported');
       }
       if (!wroteHead) {
         writeHead(200);
@@ -92,8 +92,8 @@ export function createServerResponseAdapter(
       },
     };
 
-    signal.addEventListener("abort", () => {
-      eventEmitter.emit("close");
+    signal.addEventListener('abort', () => {
+      eventEmitter.emit('close');
     });
 
     fn(fakeServerResponse as ServerResponse);
@@ -115,7 +115,7 @@ export function createServerResponseAdapter(
       {
         status: head.statusCode,
         headers: head.headers,
-      }
+      },
     );
 
     resolve(response);
